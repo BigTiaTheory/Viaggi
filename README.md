@@ -1,14 +1,21 @@
 # Viaggi
 
-App per organizzare l'itinerario dei viaggi giorno per giorno. Funziona anche offline e si aggiunge alla home di iPhone.
+App per organizzare l'itinerario dei viaggi giorno per giorno, con sincronizzazione in tempo reale tra più persone (Firebase Firestore, piano gratuito).
 
-## Pubblicazione su GitHub Pages
-1. Crea un nuovo repository su GitHub (es. `viaggi`).
-2. Carica tutti i file di questa cartella nella radice del repository.
-3. Vai in **Settings → Pages**, scegli **Deploy from a branch**, branch `main`, cartella `/ (root)`, poi **Save**.
-4. Dopo circa un minuto l'app sarà su `https://TUO-UTENTE.github.io/viaggi/`.
+## File
+- `index.html` – l'app
+- `firebase-config.js` – QUI incolli i dati del tuo progetto Firebase
+- `firestore.rules` – regole di sicurezza da incollare in Firebase
+- `manifest.webmanifest`, `sw.js`, icone – installazione sulla home e uso offline
 
-## Aggiungere alla home di iPhone
-Apri l'indirizzo in Safari, tocca **Condividi** e poi **Aggiungi alla schermata Home**.
+## Configurazione (una sola volta)
+1. Vai su https://console.firebase.google.com e crea un progetto (puoi disattivare Google Analytics).
+2. Menu **Build → Firestore Database → Create database**: scegli una regione europea (es. `eur3`) e la modalità produzione.
+3. Scheda **Regole**: cancella il contenuto, incolla quello di `firestore.rules` e premi **Pubblica**.
+4. **Impostazioni progetto** (ingranaggio) → **Le tue app** → icona web `</>` → registra l'app (senza Hosting) e copia l'oggetto `firebaseConfig`.
+5. Apri `firebase-config.js` su GitHub (matita per modificare) e sostituisci i valori con quelli copiati. Salva con **Commit changes**.
+6. Carica su GitHub anche gli altri file aggiornati (sostituendo quelli vecchi).
 
-I dati restano salvati solo sul dispositivo.
+## Condividere un viaggio
+- Apri il viaggio → **👥 Condividi** → invia il link o il codice.
+- Dall'altro telefono, nell'app installata: **👥 Unisciti con un codice** e incolla il codice.

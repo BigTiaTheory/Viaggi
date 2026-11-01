@@ -11,6 +11,7 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
+<script src="firebase-config.js"></script>
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>
 :root{--bg:#f4f5f7;--card:#fff;--tx:#1c1c1e;--mut:#6e6e73;--ac:#0a84ff;--line:#e3e3e8;--ok:#30b45a;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
@@ -161,22 +162,23 @@ input[type=time]::-webkit-date-and-time-value,input[type=date]::-webkit-date-and
 var S={trips:[]},V={n:'home'},D=null;
 function idb(){return new Promise(function(res,rej){var r=indexedDB.open('viaggi',1);r.onupgradeneeded=function(){r.result.createObjectStore('k')};r.onsuccess=function(){res(r.result)};r.onerror=rej})}
 async function load(){try{var d=await idb();var v=await new Promise(function(r){var q=d.transaction('k').objectStore('k').get('s');q.onsuccess=function(){r(q.result)};q.onerror=function(){r()}});if(v)S=v}catch(e){try{var l=localStorage.getItem('viaggi');if(l)S=JSON.parse(l)}catch(x){}}}
-async function save(){try{var d=await idb();d.transaction('k','readwrite').objectStore('k').put(S,'s')}catch(e){try{localStorage.setItem('viaggi',JSON.stringify(S))}catch(x){}}}
+function save(){saveLocal();push()}
+async function saveLocal(){try{var d=await idb();d.transaction('k','readwrite').objectStore('k').put(S,'s')}catch(e){try{localStorage.setItem('viaggi',JSON.stringify(S))}catch(x){}}}
 var uid=function(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)};
 var esc=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})};
 var trip=function(){return S.trips.find(function(t){return t.id===V.id})};
 var fd=function(d,o){return d?new Date(d+'T00:00').toLocaleDateString('it-IT',o||{day:'numeric',month:'short'}):''};
-function resize(f){return new Promise(function(res){var r=new FileReader();r.onload=function(){var i=new Image();i.onload=function(){var m=900,k=Math.min(1,m/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;c.getContext('2d').drawImage(i,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.65))};i.onerror=function(){res(null)};i.src=r.result};r.readAsDataURL(f)})}
+function resize(f){return new Promise(function(res){var r=new FileReader();r.onload=function(){var i=new Image();i.onload=function(){var m=720,k=Math.min(1,m/Math.max(i.width,i.height)),c=document.createElement('canvas');c.width=i.width*k;c.height=i.height*k;c.getContext('2d').drawImage(i,0,0,c.width,c.height);res(c.toDataURL('image/jpeg',.55))};i.onerror=function(){res(null)};i.src=r.result};r.readAsDataURL(f)})}
 function imgs(a,rm,id){return a&&a.length?'<div class="ph">'+a.map(function(s,i){return'<div><img src="'+s+'" alt="Ingrandisci foto" role="button" tabindex="0">'+(rm?'<button data-a="'+rm+'" data-i="'+i+'" data-id="'+(id||'')+'" aria-label="Rimuovi foto">×</button>':'')+'</div>'}).join('')+'</div>':''}
 function render(){var h='',t;
 if(V.n==='home'){
-h='<h1>I miei viaggi</h1><p class="sub">Scegli un viaggio o creane uno nuovo</p>';
+h='<h1>I miei viaggi</h1><p class="sub">Scegli un viaggio o creane uno nuovo</p><button class="btn s pill" data-a="join" style="margin:-6px 0 14px">👥 Unisciti con un codice</button>';
 h+=S.trips.length?S.trips.map(function(t){return'<div class="tw"><button class="card trip" data-a="open" data-id="'+t.id+'"><span class="ti" aria-hidden="true">'+(t.img?'<img src="'+t.img+'" alt="">':esc(t.emoji||'🧳'))+'</span><span style="flex:1"><b>'+esc(t.name)+'</b><br><span class="sub">'+esc(t.dest||'')+(t.dest?' · ':'')+t.days.length+' giorni · '+t.acts.length+' attività</span></span><span class="chev" aria-hidden="true">›</span></button><button class="tedit" data-a="cover" data-id="'+t.id+'" aria-label="Cambia immagine di '+esc(t.name)+'">✎</button></div>'}).join(''):'<div class="empty">Nessun viaggio ancora.<br>Tocca “Nuovo viaggio” per iniziare ✈️</div>';
 h+='<button class="btn fab" data-a="newtrip">＋ Nuovo viaggio</button>'}
 else if(V.n==='newtrip'){
 h='<div class="top"><button class="btn s" data-a="home">‹ Indietro</button></div><div class="nh"><h1>Nuovo viaggio</h1><button class="av" id="nbtn" type="button" data-a="ncov" aria-label="Scegli immagine o emoji del viaggio">'+avh()+'</button></div><label>Nome</label><input id="tn" placeholder="Es. Estate in Portogallo"><label>Destinazione</label><input id="td" placeholder="Es. Lisbona"><label>Numero di giorni</label><input id="tg" type="number" min="1" max="60" value="3"><p><button class="btn" data-a="savetrip" style="width:100%;margin-top:18px">Crea viaggio</button></p>'}
 else if(V.n==='trip'){t=trip();
-h='<div class="top"><button class="btn s" data-a="home">‹ Viaggi</button><button class="btn s" data-a="etrip">✎ Modifica</button></div><div class="hero"><div class="hl">'+esc(t.dest||'Viaggio')+'</div><h1>'+esc(t.name)+'</h1>';
+h='<div class="top"><button class="btn s" data-a="home">‹ Viaggi</button><button class="btn s" data-a="share">👥 Condividi</button><button class="btn s" data-a="etrip">✎ Modifica</button></div><div class="hero"><div class="hl">'+esc(t.dest||'Viaggio')+'</div><h1>'+esc(t.name)+'</h1>';
 var done=t.acts.filter(function(a){return a.done}).length;
 var pc=t.acts.length?Math.round(done/t.acts.length*100):0;h+='<div class="st"><div><b>'+t.days.length+'</b>giorni</div><div><b>'+t.acts.length+'</b>attività</div><div><b>'+done+'</b>fatte</div></div><div class="pr"><span>Completamento</span><b>'+pc+'%</b></div><div class="bar" role="progressbar" aria-label="Completamento del viaggio" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+pc+'" aria-valuetext="'+pc+'% completato"><i style="width:'+pc+'%"></i></div></div>';var nx=null,nd=0;t.days.forEach(function(d,di){if(nx)return;var s0=t.acts.filter(function(a){return a.day===d.id&&!a.done}).sort(function(a,b){return(a.time||'99')<(b.time||'99')?-1:1});if(s0.length){nx=s0[0];nd=di}});
 if(nx)h+='<button class="card nx" data-a="goto" data-id="'+nx.id+'"><span class="nl">Prossima attività · Giorno '+(nd+1)+'</span><span class="nt">'+(nx.time?'<span class="time">'+tr(nx)+'</span> ':'')+esc(nx.title)+'</span>'+(nx.desc?'<span class="nd">'+esc(nx.desc)+'</span>':'')+'</button>';else if(t.acts.length)h+='<div class="card nx ok">🎉 Hai completato tutte le attività!</div>';
@@ -197,6 +199,50 @@ function kd(e){if(e.key==='Escape')close()}document.addEventListener('keydown',k
 m.addEventListener('click',function(e){var x=e.target.dataset.x;if(e.target===m||x==='c')close();else if(x==='k'){var v=[].map.call(m.querySelectorAll('input'),function(i){return i.value});close();if(o.fn)o.fn(v)}});
 if(o.init)o.init(m);(m.querySelector('input')||m.querySelector('[data-x=k]')).focus()}
 var H=['home'],X={},OD={},NC='',NE='',SW=null,SO=null;
+var CL={},CU={},FBR=false,LD=false;
+function sj(o){if(Array.isArray(o))return'['+o.map(sj).join(',')+']';if(o&&typeof o==='object')return'{'+Object.keys(o).sort().filter(function(k){return o[k]!==undefined}).map(function(k){return JSON.stringify(k)+':'+sj(o[k])}).join(',')+'}';return JSON.stringify(o)}
+function sid(){var a=new Uint8Array(20),r='',c='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';crypto.getRandomValues(a);for(var i=0;i<20;i++)r+=c[a[i]%62];return r}
+function cln(o){return JSON.parse(JSON.stringify(o))}
+function mt(t){return cln({name:t.name,dest:t.dest||'',emoji:t.emoji||'',img:t.img||'',days:t.days})}
+function ca(a){var c=cln(a);delete c.ta;delete c.ea;delete c.edit;return c}
+function tryStart(){if(FBR&&LD)cloudStart()}
+window.addEventListener('fbready',function(){FBR=!!window.FB;tryStart()});
+function busy(){var a=document.activeElement;return V.n==='form'||V.n==='newtrip'||!!document.querySelector('.mo,.lb')||!!SO||!!(a&&/^(TEXTAREA|INPUT)$/.test(a.tagName)&&$('app').contains(a))}
+function remote(){saveLocal();if(!busy())render()}
+function unwatch(id){(CU[id]||[]).forEach(function(f){f()});delete CU[id]}
+function drop(id){if(!S.trips.some(function(z){return z.id===id}))return;unwatch(id);S.trips=S.trips.filter(function(z){return z.id!==id});saveLocal();if(V.id===id)V={n:'home'};render()}
+function warnBig(){if(!document.querySelector('.mo'))dlg({title:'Troppe foto',msg:'Questa attività ha troppe foto per essere sincronizzata: eliminane qualcuna.',info:1})}
+function push(){var F=window.FB;if(!F)return;var dirty=0;
+(S.gone||[]).forEach(function(g){F.del('trips/'+g.id).catch(function(){});g.a.forEach(function(i){F.del('trips/'+g.id+'/acts/'+i).catch(function(){})});Object.keys(CL).forEach(function(k){if(k.indexOf('trips/'+g.id)===0)delete CL[k]});unwatch(g.id)});S.gone=[];
+S.trips.forEach(function(t){if(t.stub||(t.cloud&&!t.live))return;var p='trips/'+t.id,m=mt(t),ms=sj(m);
+if(CL[p]!==ms){CL[p]=ms;F.set(p,m).catch(function(){})}
+var seen={};t.acts.forEach(function(a){var k=p+'/acts/'+a.id,c=ca(a),x=sj(c);seen[k]=1;if(CL[k]!==x){if(x.length>900000){warnBig();return}CL[k]=x;F.set(k,c).catch(function(){})}});
+Object.keys(CL).forEach(function(k){if(k.indexOf(p+'/acts/')===0&&!seen[k]){delete CL[k];F.del(k).catch(function(){})}});
+if(!t.cloud){t.cloud=true;t.live=true;dirty=1;watch(t)}});
+if(dirty)saveLocal()}
+function watch(t){var F=window.FB;if(!F||CU[t.id])return;var p='trips/'+t.id;
+var u1=F.watchDoc(p,function(s){if(!s.exists()){if(!s.metadata.fromCache)drop(t.id);return}
+var d=s.data(),ss=sj(d);CL[p]=ss;if(t.stub||sj(mt(t))!==ss){t.name=d.name;t.dest=d.dest||'';t.emoji=d.emoji||'';t.img=d.img||'';t.days=d.days||[];t.stub=false;remote()}},function(){});
+var u2=F.watchCol(p+'/acts',function(q){var ch=0;
+if(!t.live){if(q.metadata.fromCache&&q.empty&&t.acts.length)return;t.acts=q.docs.map(function(x){var d=x.data();CL[p+'/acts/'+x.id]=sj(d);return d});t.live=true;remote();return}
+q.docChanges().forEach(function(c){var id=c.doc.id,k=p+'/acts/'+id,i=t.acts.findIndex(function(a){return a.id===id});
+if(c.type==='removed'){if(i>-1){t.acts.splice(i,1);ch=1}delete CL[k]}
+else{var d=c.doc.data(),x=sj(d);CL[k]=x;if(i<0){t.acts.push(d);ch=1}else if(sj(ca(t.acts[i]))!==x){t.acts[i]=d;ch=1}}});
+if(ch)remote()},function(){});
+CU[t.id]=[u1,u2]}
+function cloudStart(){S.trips.forEach(function(t){if(t.cloud){t.live=false;watch(t)}});push();
+var j=new URLSearchParams(location.search).get('join');if(j){history.replaceState(null,'',location.pathname+location.hash);if(!S.trips.some(function(z){return z.id===j}))dlg({title:'Unirti al viaggio?',msg:'Potrai vedere e modificare questo viaggio insieme a chi l’ha condiviso.',ok:'Unisciti',fn:function(){join(j)}})}}
+async function join(code){if(!window.FB){dlg({title:'Sincronizzazione non attiva',msg:'Completa la configurazione di Firebase per unirti a un viaggio.',info:1});return}
+if(!code)return;if(S.trips.some(function(z){return z.id===code})){V={n:'trip',id:code};render();return}
+var sn;try{sn=await FB.get('trips/'+code)}catch(e){dlg({title:'Nessuna connessione',msg:'Collegati a internet e riprova.',info:1});return}
+if(!sn.exists()){dlg({title:'Codice non valido',msg:'Controlla di averlo copiato per intero.',info:1});return}
+var d=sn.data(),t={id:code,name:d.name,dest:d.dest||'',emoji:d.emoji||'',img:d.img||'',days:d.days||[],acts:[],cloud:true,live:false,stub:true};
+S.trips.unshift(t);saveLocal();watch(t);V={n:'trip',id:code};render();window.scrollTo(0,0)}
+function joinDlg(){dlg({title:'Unisciti a un viaggio',msg:'Incolla il codice (o il link) che hai ricevuto.',fields:[{label:'Codice del viaggio',val:''}],ok:'Unisciti',fn:function(v){var c=v[0].trim(),m=c.match(/join=([A-Za-z0-9]+)/);join(m?m[1]:c)}})}
+function share(){var t=trip();if(!window.FB){dlg({title:'Sincronizzazione non attiva',msg:'Completa la configurazione di Firebase per condividere i viaggi.',info:1});return}
+var u=location.origin+location.pathname+'?join='+t.id;
+dlg({title:'Condividi il viaggio',msg:'Chi ha il codice può vedere e modificare il viaggio in tempo reale. Condividilo solo con persone di cui ti fidi.',html:'<label for="sc">Codice del viaggio</label><input id="sc" readonly value="'+esc(t.id)+'">',ok:'Invia link',fn:function(){var x={title:'Viaggio: '+t.name,text:'Unisciti al mio viaggio',url:u};if(navigator.share)navigator.share(x).catch(function(){});else if(navigator.clipboard)navigator.clipboard.writeText(u)}})}
+
 function cover(id){var t=S.trips.find(function(z){return z.id===id}),im=t.img||'';
 dlg({title:'Immagine del viaggio',fields:[{label:'Emoji (apri la tastiera emoji 😀)',val:t.emoji||''}],ok:'Salva',
 html:'<label>Oppure scegli una foto (ha la precedenza)</label><div class="cv"><div class="cp" id="cpv"></div><label class="up">🖼 Scegli foto<input type="file" accept="image/*" id="cfile"></label><button class="btn d pill" type="button" id="crm">Rimuovi foto</button></div>',
@@ -250,14 +296,16 @@ document.addEventListener('click',function(e){var im=e.target.closest('.ph img')
 if(a==='home'){V={n:'home'}}
 else if(a==='newtrip'){NC='';NE='';V={n:'newtrip'}}
 else if(a==='ncov'){ncover();return}
-else if(a==='savetrip'){var n=$('tn').value.trim();if(!n){$('tn').focus();return}var c=Math.max(1,Math.min(60,+$('tg').value||1)),ds=[];for(var q=0;q<c;q++)ds.push({id:uid(),title:''});var nt={id:uid(),name:n,dest:$('td').value.trim(),emoji:NE,img:NC,days:ds,acts:[]};S.trips.unshift(nt);save();H.pop();H.push('trip');history.replaceState(null,'','#trip');V={n:'trip',id:nt.id};D=blank();V={n:'form',id:nt.id}}
+else if(a==='savetrip'){var n=$('tn').value.trim();if(!n){$('tn').focus();return}var c=Math.max(1,Math.min(60,+$('tg').value||1)),ds=[];for(var q=0;q<c;q++)ds.push({id:uid(),title:''});var nt={id:sid(),name:n,dest:$('td').value.trim(),emoji:NE,img:NC,days:ds,acts:[]};S.trips.unshift(nt);save();H.pop();H.push('trip');history.replaceState(null,'','#trip');V={n:'trip',id:nt.id};D=blank();V={n:'form',id:nt.id}}
 else if(a==='open'){V={n:'trip',id:id}}
-else if(a==='deltrip'){dlg({title:'Eliminare il viaggio?',msg:'Verranno eliminati anche giorni, attività e foto. L’operazione non si può annullare.',ok:'Elimina',danger:1,fn:function(){S.trips=S.trips.filter(function(z){return z.id!==V.id});save();V={n:'home'};render();window.scrollTo(0,0)}});return}
+else if(a==='deltrip'){dlg({title:'Eliminare il viaggio?',msg:'Verranno eliminati giorni, attività e foto, anche per chi condivide questo viaggio. L’operazione non si può annullare.',ok:'Elimina',danger:1,fn:function(){var gid=V.id,tt=trip();(S.gone=S.gone||[]).push({id:gid,a:tt.acts.map(function(x){return x.id})});S.trips=S.trips.filter(function(z){return z.id!==gid});save();V={n:'home'};render();window.scrollTo(0,0)}});return}
 else if(a==='etrip'){dlg({title:'Modifica viaggio',fields:[{label:'Nome',val:t.name},{label:'Destinazione',val:t.dest||''}],ok:'Salva',fn:function(v){if(v[0].trim())t.name=v[0].trim();t.dest=v[1].trim();save();render()}});return}
 else if(a==='add'){D=blank();V.n='form'}
 else if(a==='addto'){D=blank(id);V.n='form'}
 else if(a==='edit'){x=t.acts.find(function(z){return z.id===id});D=JSON.parse(JSON.stringify(x));D.edit=true;D.ta=D.ea=false;V.n='form'}
 else if(a==='cancel'){V.n='trip'}
+else if(a==='share'){share();return}
+else if(a==='join'){joinDlg();return}
 else if(a==='dmenu'){sheet(id);return}
 else if(a==='tgd'){OD[id]=b.getAttribute('aria-expanded')!=='true'}
 else if(a==='cover'){cover(id);return}
@@ -289,9 +337,20 @@ else if(f==='nc'){var r0=el.files[0]?await resize(el.files[0]):null;if(r0){NC=r0
 else if(f==='dp'||f==='cp'){var ps=[];for(var j=0;j<el.files.length;j++){var r=await resize(el.files[j]);if(r)ps.push(r)}
 if(f==='dp')D.photos=D.photos.concat(ps);else{var y=trip().acts.find(function(z){return z.id===el.dataset.id});y.cphotos=(y.cphotos||[]).concat(ps);save()}
 render()}});
-load().then(function(){S.trips.forEach(function(t){if(!t.days){var m={},ds=[];t.acts.forEach(function(a){m[a.date||'']=1});Object.keys(m).sort().forEach(function(k){m[k]={id:uid(),title:''};ds.push(m[k])});if(!ds.length)ds.push({id:uid(),title:''});t.acts.forEach(function(a){a.day=m[a.date||''].id});t.days=ds}});save();history.replaceState(null,'','#home');render()});
+load().then(function(){S.trips.forEach(function(t){if(!t.days){var m={},ds=[];t.acts.forEach(function(a){m[a.date||'']=1});Object.keys(m).sort().forEach(function(k){m[k]={id:uid(),title:''};ds.push(m[k])});if(!ds.length)ds.push({id:uid(),title:''});t.acts.forEach(function(a){a.day=m[a.date||''].id});t.days=ds}});S.trips.forEach(function(t){if(!t.cloud&&t.id.length<20)t.id=sid()});saveLocal();history.replaceState(null,'','#home');render();LD=true;tryStart()});
 
 if('serviceWorker' in navigator&&location.protocol.indexOf('http')===0){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){})})}
+</script>
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {initializeFirestore,getFirestore,persistentLocalCache,doc,setDoc,deleteDoc,getDoc,onSnapshot,collection} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const cfg=window.FIREBASE_CONFIG;
+if(cfg&&cfg.apiKey&&cfg.projectId&&cfg.apiKey.indexOf('INCOLLA')<0){
+ const app=initializeApp(cfg);let db;
+ try{db=initializeFirestore(app,{localCache:persistentLocalCache({})})}catch(e){db=getFirestore(app)}
+ window.FB={set:(p,d)=>setDoc(doc(db,p),d),del:p=>deleteDoc(doc(db,p)),get:p=>getDoc(doc(db,p)),watchDoc:(p,cb,er)=>onSnapshot(doc(db,p),cb,er),watchCol:(p,cb,er)=>onSnapshot(collection(db,p),cb,er)};
+}
+window.dispatchEvent(new Event('fbready'));
 </script>
 </body>
 </html>
