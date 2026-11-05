@@ -180,6 +180,14 @@ input[type=time]::-webkit-date-and-time-value,input[type=date]::-webkit-date-and
 .sp{width:46px;height:46px;border-radius:50%;border:4px solid color-mix(in srgb,var(--ac) 20%,transparent);border-top-color:var(--ac);margin:6px auto 16px;animation:spin .9s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 @media (prefers-reduced-motion:reduce){.sp{animation-duration:2.4s!important}}
+
+.inforow{display:flex;align-items:center;gap:12px;width:100%;min-height:58px;margin:10px 0 2px;padding:10px 14px;border:0;border-radius:16px;background:color-mix(in srgb,var(--ac) 10%,transparent);color:var(--tx);font:inherit;text-align:left;cursor:pointer}
+.inforow:active{background:color-mix(in srgb,var(--ac) 20%,transparent)}
+.inforow>span:first-child{font-size:24px}.inforow .ir{flex:1;min-width:0}.inforow b{display:block;font-size:16px}.inforow small{display:block;color:var(--mut);font-size:13px}
+.desc[data-a]{cursor:pointer}
+.aibtn{width:100%;margin-top:14px;background:var(--grad);color:var(--on)}.aibtn:disabled{opacity:.7}
+.aihint{margin:6px 2px 0;font-size:13px}
+textarea[data-f=inf]{min-height:140px}
 </style>
 </head>
 <body>
@@ -210,10 +218,17 @@ var pc=t.acts.length?Math.round(done/t.acts.length*100):0;h+='<div class="st"><d
 if(nx)h+='<button class="card nx" data-a="goto" data-id="'+nx.id+'"><span class="nl">Prossima attività · Giorno '+(nd+1)+'</span><span class="nt">'+(nx.time?'<span class="time">'+tr(nx)+'</span> ':'')+esc(nx.title)+'</span>'+(nx.desc?'<span class="nd">'+esc(nx.desc)+'</span>':'')+'</button>';else if(t.acts.length)h+='<div class="card nx ok">🎉 Hai completato tutte le attività!</div>';
 t.days.forEach(function(d,di){var sa=t.acts.filter(function(a){return a.day===d.id}),dn=sa.filter(function(a){return a.done}).length,op=OD[d.id]!==undefined?OD[d.id]:(nx?di===nd:!t.acts.length);h+='<div class="dh"><h2><button class="dt" data-a="tgd" data-id="'+d.id+'" aria-expanded="'+op+'"><span class="bd" aria-hidden="true">'+(di+1)+'</span><span class="dx"><small>Giorno '+(di+1)+'</small>'+(d.title?esc(d.title):'<span style="color:var(--mut);font-weight:500">Aggiungi un titolo</span>')+'<span class="cn">'+(sa.length?sa.length+' attività · '+dn+(dn===1?' fatta':' fatte'):'Nessuna attività')+'</span></span><span class="chv" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button></h2><button class="dm" data-a="dmenu" data-id="'+d.id+'" aria-label="Opzioni del giorno '+(di+1)+'" aria-haspopup="dialog"><svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true"><circle cx="5" cy="12" r="2.1"/><circle cx="12" cy="12" r="2.1"/><circle cx="19" cy="12" r="2.1"/></svg></button></div>';var s=t.acts.filter(function(a){return a.day===d.id}).sort(function(a,b){return(a.time||'99')<(b.time||'99')?-1:1});if(!op)s=[];else if(!s.length)h+='<div class="sub" style="margin-top:6px">Nessuna attività</div>';
 s.forEach(function(a){
-h+='<div class="sw"><button class="se" data-a="edit" data-id="'+a.id+'" aria-label="Modifica '+esc(a.title)+'">MODIFICA</button><button class="sd" data-a="delact" data-id="'+a.id+'" aria-label="Elimina '+esc(a.title)+'">ELIMINA</button><div id="a-'+a.id+'" class="card act'+(a.done?' done':'')+'"><button class="chk'+(a.done?' on':'')+'" data-a="tog" data-id="'+a.id+'" aria-pressed="'+!!a.done+'" aria-label="Fatta: '+esc(a.title)+'"><span>'+(a.done?'✓':'')+'</span></button><div style="flex:1;min-width:0"><div>'+(a.time?'<span class="time">'+tr(a)+'</span> ':'')+'<span class="t">'+esc(a.title)+'</span></div>'+(!X[a.id]?'<button class="btn s pill more" data-a="more" data-id="'+a.id+'" aria-expanded="false">Mostra dettagli ⌄</button>':'')+(!X[a.id]?'':(a.desc?'<div class="desc">'+esc(a.desc)+'</div>':'')+imgs(a.photos)+(a.links||[]).map(function(l){return'<a class="lk" target="_blank" rel="noopener" href="'+esc(l)+'">🔗 '+esc(l)+'</a>'}).join(''));
+h+='<div class="sw"><button class="se" data-a="edit" data-id="'+a.id+'" aria-label="Modifica '+esc(a.title)+'">MODIFICA</button><button class="sd" data-a="delact" data-id="'+a.id+'" aria-label="Elimina '+esc(a.title)+'">ELIMINA</button><div id="a-'+a.id+'" class="card act'+(a.done?' done':'')+'"><button class="chk'+(a.done?' on':'')+'" data-a="tog" data-id="'+a.id+'" aria-pressed="'+!!a.done+'" aria-label="Fatta: '+esc(a.title)+'"><span>'+(a.done?'✓':'')+'</span></button><div style="flex:1;min-width:0"><div>'+(a.time?'<span class="time">'+tr(a)+'</span> ':'')+'<span class="t">'+esc(a.title)+'</span></div>'+(!X[a.id]?'<button class="btn s pill more" data-a="more" data-id="'+a.id+'" aria-expanded="false">Mostra dettagli ⌄</button>':'')+(!X[a.id]?'':(a.desc?'<div class="desc" data-a="info" data-id="'+a.id+'">'+esc(a.desc)+'</div>':'')+imgs(a.photos)+(a.links||[]).map(function(l){return'<a class="lk" target="_blank" rel="noopener" href="'+esc(l)+'">🔗 '+esc(l)+'</a>'}).join('')+'<button class="inforow" data-a="info" data-id="'+a.id+'"><span aria-hidden="true">📍</span><span class="ir"><b>Scheda del luogo</b><small>'+(a.info&&(a.info.facts||a.info.history||a.info.tips)?'Fatti, storia e informazioni utili':'Aggiungi storia, curiosità e info')+'</small></span><span class="chev" aria-hidden="true">›</span></button>');
 if(a.done&&X[a.id])h+='<div class="cm"><label style="margin-top:4px">Com’è andata?</label><textarea data-f="cm" data-id="'+a.id+'" placeholder="Aggiungi un commento…">'+esc(a.comment||'')+'</textarea>'+imgs(a.cphotos,'rmcp',a.id)+'<label class="up">📷 Aggiungi foto<input type="file" accept="image/*" multiple data-f="cp" data-id="'+a.id+'"></label></div>';
 h+=(!X[a.id]?'':'<div class="tools"><button class="btn s pill" data-a="less" data-id="'+a.id+'" aria-expanded="true">Riduci ⌃</button>'+'</div>')+'</div></div></div>'});if(op)h+='<button class="addrow" data-a="addto" data-id="'+d.id+'">＋ Aggiungi attività</button>';});
 h+='<div style="text-align:center;margin-top:18px"><button class="addrow" data-a="addday">＋ Aggiungi giorno</button></div><div style="text-align:center;margin-top:26px"><button class="btn d pill" data-a="deltrip">🗑 Elimina viaggio</button></div>'}
+else if(V.n==='detail'){t=trip();var a=t.acts.find(function(z){return z.id===V.aid});
+if(!a){h='<div class="top"><button class="btn s" data-a="cancel">‹ Indietro</button></div><div class="empty">Attività non trovata</div>'}
+else{var dd=t.days.findIndex(function(z){return z.id===a.day}),I=a.info||{},sec=function(l,k,ph){return'<label for="i_'+k+'">'+l+'</label><textarea id="i_'+k+'" data-f="inf" data-k="'+k+'" data-id="'+a.id+'" placeholder="'+ph+'">'+esc(I[k]||'')+'</textarea>'};
+h='<div class="top"><button class="btn s" data-a="cancel">‹ Indietro</button></div><div class="hero"><div class="hl">'+esc(t.name)+(dd>-1?' · Giorno '+(dd+1):'')+'</div><h1>'+esc(a.title)+'</h1>'+(a.time?'<div style="font-weight:600">'+tr(a)+'</div>':'')+'</div>'
++'<label for="i_place">Nome del luogo</label><input id="i_place" data-f="inf" data-k="place" data-id="'+a.id+'" value="'+esc(I.place||'')+'" placeholder="'+esc(a.title)+'">'
++(aiOn()?'<button class="btn aibtn" data-a="aiinfo" data-id="'+a.id+'">✨ Compila con l’AI</button><p class="sub aihint">L’AI abbozza fatti, storia e consigli sul luogo. Controlla sempre le informazioni importanti.</p>':'')
++sec('Fatti principali','facts','Curiosità e fatti da sapere sul luogo…')+sec('Storia del luogo','history','Un breve riassunto della storia…')+sec('Informazioni utili','tips','Periodo migliore, tempo di visita, come arrivare…')}}
 else if(V.n==='form'){
 h='<div class="top"><button class="btn s" data-a="cancel">‹ Annulla</button></div><h1>'+(D.edit?'Modifica attività':'Nuova attività')+'</h1><label>Riassunto</label><input data-f="title" value="'+esc(D.title)+'" placeholder="Es. Visita alla Torre di Belém"><div><div><label>Giorno</label><select data-f="day">'+trip().days.map(function(d,i){return'<option value="'+d.id+'"'+(d.id===D.day?' selected':'')+'>Giorno '+(i+1)+(d.title?' · '+esc(d.title):'')+'</option>'}).join('')+'</select></div></div><div class="row"><div><label>Inizio</label><input data-f="time" type="time" value="'+D.time+'"></div><div><label>Fine</label><input data-f="end" type="time" value="'+(D.end||'')+'"></div></div><label>Descrizione</label><textarea data-f="desc" placeholder="Dettagli, indirizzo, prenotazioni…">'+esc(D.desc)+'</textarea><label>Foto</label>'+imgs(D.photos,'rmph')+'<label class="up">📷 Aggiungi foto<input type="file" accept="image/*" multiple data-f="dp"></label><label>Link a siti esterni</label>'+(D.links||[]).map(function(l,i){return'<div class="row" style="align-items:center"><a class="lk" style="flex:1">'+esc(l)+'</a><button class="btn d" style="flex:none" data-a="rmlk" data-i="'+i+'" aria-label="Rimuovi link">×</button></div>'}).join('')+'<div class="row"><input id="lk" type="url" aria-label="Indirizzo del link" placeholder="https://…"><button class="btn" style="flex:none" data-a="addlk">Aggiungi</button></div><p><button class="btn" data-a="saveact" style="width:100%;margin-top:22px">Conferma attività</button></p>'}
 $('app').innerHTML=h;SO=null;a11y();sync()}
@@ -277,6 +292,25 @@ var d=await r.json(),c=((d.candidates||[])[0]||{}).content,t=((c&&c.parts)||[]).
 return JSON.parse(t.slice(a,z+1))}
 var r2=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dest:dest,days:days,prefs:pref}),signal:sig});
 if(!r2.ok)throw{s:r2.status};return r2.json()}
+async function aiGem(prompt,sig){var m=window.GEMINI_MODEL||'gemini-flash-lite-latest';
+var r=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(m)+':generateContent?key='+encodeURIComponent(GEMINI_KEY),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({systemInstruction:{parts:[{text:AISYS}]},contents:[{role:'user',parts:[{text:prompt}]}],generationConfig:{responseMimeType:'application/json',temperature:.6}}),signal:sig});
+if(!r.ok)throw{s:r.status};
+var d=await r.json(),c=((d.candidates||[])[0]||{}).content,t=((c&&c.parts)||[]).map(function(p){return p.text||''}).join(''),a=t.indexOf('{'),z=t.lastIndexOf('}');
+return JSON.parse(t.slice(a,z+1))}
+async function aiPlace(place,dest,desc,sig){
+if(aiKey(window.GEMINI_KEY))return aiGem('Luogo: '+place+'\nCittà/destinazione: '+(dest||'non indicata')+(desc?'\nNote dell’utente: '+desc:'')+'\n\nScrivi in italiano una scheda informativa su questo luogo. Rispondi solo con JSON nel formato {"facts":"...","history":"...","tips":"..."} dove:\n- "facts": 4-6 fatti principali, uno per riga, ogni riga inizia con "• ".\n- "history": riassunto della storia del luogo in 80-120 parole.\n- "tips": 3-5 consigli pratici (periodo migliore, tempo di visita consigliato, come arrivare, cosa sapere), uno per riga, ogni riga inizia con "• ".\nSe non riesci a identificare il luogo con certezza, dillo chiaramente invece di inventare. Non inventare orari di apertura o prezzi.',sig);
+var r=await fetch(AI_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({kind:'place',place:place,dest:dest,desc:desc}),signal:sig});
+if(!r.ok)throw{s:r.status};return r.json()}
+function ss(x){return(Array.isArray(x)?x.join('\n'):String(x||'')).slice(0,2500)}
+async function aiInfo(id){var t=trip(),a=t&&t.acts.find(function(z){return z.id===id});if(!a)return;var I=a.info||{};
+var run=async function(){var b=document.querySelector('.aibtn');if(b){b.disabled=true;b.textContent='✨ Sto cercando informazioni…'}
+var ctl=new AbortController(),tm=setTimeout(function(){ctl.abort()},60000),res=null,ec='';
+try{res=await aiPlace(I.place||a.title,t.dest,a.desc||'',ctl.signal)}catch(e){ec=(e&&e.s)||'rete'}
+clearTimeout(tm);
+if(res&&(res.facts||res.history||res.tips)){a.info=Object.assign(a.info||{},{facts:ss(res.facts),history:ss(res.history),tips:ss(res.tips)});save()}
+else dlg({title:'Informazioni non create',msg:(ec===429?'Hai raggiunto il limite gratuito dell’AI: riprova tra qualche minuto.':'Non sono riuscito a generare la scheda'+(ec?' (errore '+ec+')':'')+'. Riprova tra poco.'),info:1});
+if(V.n==='detail'&&V.aid===id)render()};
+if(I.facts||I.history||I.tips)dlg({title:'Sostituire il testo?',msg:'L’AI sovrascriverà fatti, storia e informazioni già scritti.',ok:'Sostituisci',danger:1,fn:run});else run()}
 async function aiCreate(nt,pref){
 if(!nt.dest){dlg({title:'Serve la destinazione',msg:'Indica dove vai per ricevere una proposta.',info:1});return}
 if(nt.days.length>14){dlg({title:'Troppi giorni',msg:'L’AI può proporre al massimo 14 giorni: riduci il numero di giorni.',info:1});return}
@@ -325,7 +359,7 @@ document.addEventListener('touchend',function(){if(!SW)return;var s=SW;SW=null;i
 function sync(){var n=V.n,t=H[H.length-1];if(n===t)return;if(H.length>1&&H[H.length-2]===n){H.pop();history.back()}else{H.push(n);location.hash=n}}
 function onhash(){var h=location.hash.slice(1)||'home',t=H[H.length-1];if(h!==t){if(h===H[H.length-2])H.pop();else H.push(h)}
 var o=document.querySelector('.mo,.lb');if(o&&h!=='ov'&&o._rm)o._rm();if(h==='ov')return;
-if(V.n!==h){V.n=h;if(h==='trip'&&!V.id)V.n='home';if(h==='form'&&(!D||!V.id)){if(V.id)D=blank();else V.n='home'}render();window.scrollTo(0,0)}}
+if(V.n!==h){V.n=h;if(h==='trip'&&!V.id)V.n='home';if(h==='detail'&&!V.aid)V.n='trip';if(h==='form'&&(!D||!V.id)){if(V.id)D=blank();else V.n='home'}render();window.scrollTo(0,0)}}
 window.addEventListener('hashchange',onhash);
 document.addEventListener('keydown',function(e){if(e.key==='Enter'&&e.target.matches&&e.target.matches('.ph img'))e.target.click()});
 function lb(g,i){var m=document.createElement('div'),z=0,x0=null;m.className='lb';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-label','Foto ingrandita');
@@ -356,6 +390,8 @@ else if(a==='add'){D=blank();V.n='form'}
 else if(a==='addto'){D=blank(id);V.n='form'}
 else if(a==='edit'){x=t.acts.find(function(z){return z.id===id});D=JSON.parse(JSON.stringify(x));D.edit=true;D.ta=D.ea=false;V.n='form'}
 else if(a==='cancel'){V.n='trip'}
+else if(a==='info'){V.n='detail';V.aid=id}
+else if(a==='aiinfo'){aiInfo(id);return}
 else if(a==='share'){share();return}
 else if(a==='join'){joinDlg();return}
 else if(a==='dmenu'){sheet(id);return}
@@ -377,7 +413,7 @@ else if(a==='saveact'){if(!D.title.trim()){dlg({title:'Manca il riassunto',msg:'
 if(D.edit){var k=t.acts.findIndex(function(z){return z.id===D.id});D.done=t.acts[k].done;D.comment=t.acts[k].comment;D.cphotos=t.acts[k].cphotos;delete D.edit;t.acts[k]=D}
 else{D.id=uid();D.done=false;D.comment='';D.cphotos=[];t.acts.push(D)}
 delete D.ta;delete D.ea;OD[D.day]=true;D=null;save();V.n='trip'}
-render();if(['home','newtrip','savetrip','add','addto','edit','cancel','saveact','deltrip'].indexOf(a)>-1)window.scrollTo(0,0)});
+render();if(['home','newtrip','savetrip','add','addto','edit','cancel','saveact','deltrip','info'].indexOf(a)>-1)window.scrollTo(0,0)});
 function onin(e){var f=e.target.dataset.f;if(!(D&&V.n==='form'))return;if(['title','day','time','end','desc'].indexOf(f)<0)return;D[f]=e.target.value;
 if(f==='time'){D.ta=false;if(D.ea&&D.time){D.end=addMin(D.time,30);var q=document.querySelector('[data-f=end]');if(q)q.value=D.end}}
 else if(f==='end')D.ea=false;
@@ -385,6 +421,7 @@ else if(f==='day'&&D.ta){var s=dflt(D.day,D.id);D.time=s;D.end=D.ea?(s?addMin(s,
 document.addEventListener('input',onin);document.addEventListener('change',onin);
 document.addEventListener('change',async function(e){var el=e.target,f=el.dataset.f;
 if(f==='cm'){var x=trip().acts.find(function(z){return z.id===el.dataset.id});x.comment=el.value;save()}
+else if(f==='inf'){var xa=trip().acts.find(function(z){return z.id===el.dataset.id});if(xa){xa.info=xa.info||{};xa.info[el.dataset.k]=el.value;save()}}
 else if(f==='nc'){var r0=el.files[0]?await resize(el.files[0]):null;if(r0){NC=r0;$('npv').innerHTML='<img src="'+r0+'" alt="Anteprima">'}}
 else if(f==='dp'||f==='cp'){var ps=[];for(var j=0;j<el.files.length;j++){var r=await resize(el.files[j]);if(r)ps.push(r)}
 if(f==='dp')D.photos=D.photos.concat(ps);else{var y=trip().acts.find(function(z){return z.id===el.dataset.id});y.cphotos=(y.cphotos||[]).concat(ps);save()}
