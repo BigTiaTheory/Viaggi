@@ -1,10 +1,7 @@
-// ASSISTENTE AI GRATUITO (Google Gemini) - vedi README.md
-// 1) Crea una chiave su https://aistudio.google.com/apikey e incollala qui sotto.
+// ASSISTENTE AI (gratuito) tramite Worker Cloudflare - vedi README.md
+// Incolla qui l'indirizzo del tuo Worker, ad esempio: https://viaggi-ai.nome.workers.dev
 // Finché contiene INCOLLA, il pulsante dell'AI non compare nell'app.
-window.GEMINI_KEY = "AQ.Ab8RN6KPeOfkiROmxiJz4iShXD7XhwPBDk6YCGwhZYb5yiNGFg";
+window.AI_URL = "viaggi-ai.mattiamauro1998.workers.dev";
 
-// Modello usato (se dà errore 404, sostituisci con un modello Flash-Lite attuale visibile in AI Studio)
-window.GEMINI_MODEL = "gemini-flash-lite-latest";
-
-// Opzionale (a pagamento, più sicuro): indirizzo di un Worker Cloudflare con Claude. Lascia vuoto.
-window.AI_URL = "";
+// NON mettere più nessuna chiave Gemini qui: resta segreta nel Worker.
+window.GEMINI_KEY = "";
